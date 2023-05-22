@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:recipes/screens/search.dart';
 import 'package:recipes/screens/saved.dart';
+import 'package:recipes/screens/account.dart';
+import 'package:recipes/api/session.dart';
 import 'package:recipes/screens/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'components/nav_bottom.dart';
 
@@ -22,34 +25,59 @@ void main() async {
 }
 
 class RecipeSearchApp extends StatelessWidget {
+  final AuthService _authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Recipe Search',
-      theme: ThemeData(primarySwatch: Colors.red),
-      home: MainScreen(),
+    return StreamBuilder<User?>(
+      stream: _authService.user,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          User? user = snapshot.data;
+          if (user == null) {
+            return MaterialApp(
+              title: 'Recipe Search',
+              theme: ThemeData(primarySwatch: Colors.red),
+              home: LoginPage(),
+            );
+          } else {
+            return MaterialApp(
+              title: 'Recipe Search',
+              theme: ThemeData(primarySwatch: Colors.red),
+              home: MainScreen(user: user), // pass the user to the MainScreen
+            );
+          }
+        } else {
+          return CircularProgressIndicator(); // show a loading spinner while waiting for the connection
+        }
+      },
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
+  final User user;
+
+  MainScreen({required this.user});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  late List<Widget> _screens;
 
-  final List<Widget> _screens = [
-    SearchScreen(),
-    SavedScreen(),
-    LoginPage(),
-  ];
-
-  void _onItemSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex =
+        2; // when the MainScreen is shown, it always shows the AccountPage first
+    _screens = [
+      SearchScreen(),
+      SavedScreen(),
+      AccountPage(user: widget.user),
+    ];
   }
 
   @override
@@ -60,5 +88,11 @@ class _MainScreenState extends State<MainScreen> {
         onTap: _onItemSelected,
       ),
     );
+  }
+
+  void _onItemSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }

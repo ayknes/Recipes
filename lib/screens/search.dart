@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:recipes/api/recipe_api.dart';
 import 'package:recipes/components/recipe_card.dart';
 import 'package:recipes/screens/detail.dart';
+import 'package:recipes/screens/filter.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -85,7 +86,7 @@ class _SearchScreenState extends State<SearchScreen> {
         title: Text('Recipe Search'),
         actions: [
           IconButton(
-            onPressed: _openFilterDialog,
+            onPressed: () => _openFilterPage(context),
             icon: Icon(Icons.filter_list),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:recipes/api/recipe_api.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RecipesDetail {
   final int id;
@@ -134,13 +135,17 @@ class DetailScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          FirebaseFirestore.instance
-              .collection('recipes')
-              .add(recipesDetail.toJson())
-              .catchError((e) {
-            print(e);
-            return null;
-          });
+          final User? user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            FirebaseFirestore.instance
+                .collection('users/${user.uid}/savedRecipes')
+                .add(recipesDetail.toJson())
+                .catchError((e) {
+              print(e);
+            });
+          } else {
+            print("User is not signed in.");
+          }
         },
         child: Icon(Icons.add),
       ),
