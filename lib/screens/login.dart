@@ -5,6 +5,8 @@ import 'package:recipes/components/square_title.dart';
 import 'package:recipes/screens/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:recipes/screens/account.dart';
+import 'package:recipes/main.dart'; // Import the MainScreen
+import 'package:recipes/api/session.dart'; // Import the AuthService
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -45,16 +47,11 @@ class LoginPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-
-              // logo
               const Icon(
                 Icons.lock,
                 size: 100,
               ),
-
               const SizedBox(height: 50),
-
-              // welcome back, you've been missed!
               Text(
                 'Welcome back you\'ve been missed!',
                 style: TextStyle(
@@ -62,28 +59,19 @@ class LoginPage extends StatelessWidget {
                   fontSize: 16,
                 ),
               ),
-
               const SizedBox(height: 25),
-
-              // username textfield
               MyTextField(
                 controller: usernameController,
                 hintText: 'Username',
                 obscureText: false,
               ),
-
               const SizedBox(height: 10),
-
-              // password textfield
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
                 obscureText: true,
               ),
-
               const SizedBox(height: 10),
-
-              // forgot password?
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
@@ -96,12 +84,7 @@ class LoginPage extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 25),
-
-              // sign in button
-              // sign in button
-              // sign in button
               MyButton(
                 onTap: () async {
                   try {
@@ -109,9 +92,14 @@ class LoginPage extends StatelessWidget {
                         usernameController.text, passwordController.text);
                     if (user != null) {
                       // User successfully signed in. Navigate to AccountPage.
-                      Navigator.push(
+                      AuthService _authService = AuthService();
+                      Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => AccountPage()),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MainScreen(authService: _authService),
+                        ),
+                        (Route<dynamic> route) => false,
                       );
                     }
                   } catch (e) {
@@ -120,10 +108,7 @@ class LoginPage extends StatelessWidget {
                   }
                 },
               ),
-
               const SizedBox(height: 50),
-
-              // not a member? register now
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

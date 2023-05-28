@@ -36,6 +36,13 @@ class _SearchScreenState extends State<SearchScreen> {
     // Add other parameters as needed
     int? offset,
     int? number,
+    required vegetarian,
+    required vegan,
+    required pricePerServing,
+    required healthScore,
+    required aggregateLikes,
+    required spoonacularScore,
+    required readyInMinutes,
   }) async {
     List<dynamic> recipes = await _recipeApi.searchRecipes(
       query!,
@@ -57,8 +64,8 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  void _openFilterPage(BuildContext context) {
-    Navigator.push(
+  void _openFilterPage(BuildContext context) async {
+    final result = await Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => FilterPage(),
@@ -77,6 +84,21 @@ class _SearchScreenState extends State<SearchScreen> {
         },
       ),
     );
+
+    if (result != null) {
+      // The result is the filters map you passed to Navigator.pop in FilterPage.
+      Map<String, dynamic> filters = result;
+      _searchRecipesWithFilters(
+        query: _searchController.text,
+        vegetarian: filters['vegetarian'],
+        vegan: filters['vegan'],
+        aggregateLikes: filters['aggregateLikes'],
+        healthScore: filters['healthScore'],
+        spoonacularScore: filters['spoonacularScore'],
+        readyInMinutes: filters['readyInMinutes'],
+        pricePerServing: filters['pricePerServing'],
+      );
+    }
   }
 
   @override
@@ -125,7 +147,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               recipeId, RecipeApi.apiKey);
                       String steps = instructions.join('\n');
 
-                      RecipesDetail recipeDetail = RecipesDetail(
+                      RecipeDetail recipeDetail = RecipeDetail(
                         id: _recipes[index]['id'] ?? 0,
                         title: _recipes[index]['title'] ?? '',
                         description: _recipes[index]['description'] ?? '',
@@ -137,8 +159,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailScreen(
-                            recipesDetail: recipeDetail,
-                            recipeId: null,
+                            recipeDetail: recipeDetail,
                           ),
                         ),
                       );

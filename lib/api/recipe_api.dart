@@ -26,11 +26,46 @@ class RecipeApi {
       int? spoonacularScore,
       int? readyInMinutes,
       int? pricePerServing}) async {
+    String? adjustedDiet;
+
+    if (vegetarian == true) {
+      adjustedDiet = 'vegetarian';
+    }
+
+    if (vegan == true) {
+      if (adjustedDiet != null) {
+        adjustedDiet += ',vegan';
+      } else {
+        adjustedDiet = 'vegan';
+      }
+    }
+
+    adjustedDiet = diet ?? adjustedDiet;
+
+    print(
+        'Sending API request to: $_baseURL/complexSearch?apiKey=$_apiKey&query=$query'
+        '&cuisine=${cuisine ?? ""}'
+        '&excludeCuisine=${excludeCuisine ?? ""}'
+        '&diet=${adjustedDiet ?? ""}'
+        '&intolerances=${intolerances ?? ""}'
+        '&equipment=${equipment ?? ""}'
+        '&includeIngredients=${includeIngredients ?? ""}'
+        '&excludeIngredients=${excludeIngredients ?? ""}'
+        '&type=${type ?? ""}'
+        '&instructionsRequired=${instructionsRequired ?? ""}'
+        '&offset=${offset ?? 0}'
+        '&number=${number ?? 10}'
+        '&minAggregateLikes=${aggregateLikes ?? 0}'
+        '&minHealthScore=${healthScore ?? 0}'
+        '&minSpoonacularScore=${spoonacularScore ?? 0}'
+        '&maxReadyInMinutes=${readyInMinutes ?? 0}'
+        '&maxPricePerServing=${pricePerServing ?? 0}');
+
     final response = await http
         .get(Uri.parse('$_baseURL/complexSearch?apiKey=$_apiKey&query=$query'
             '&cuisine=${cuisine ?? ""}'
             '&excludeCuisine=${excludeCuisine ?? ""}'
-            '&diet=${diet ?? ""}'
+            '&diet=${adjustedDiet ?? ""}' // This line is edited
             '&intolerances=${intolerances ?? ""}'
             '&equipment=${equipment ?? ""}'
             '&includeIngredients=${includeIngredients ?? ""}'
@@ -39,8 +74,6 @@ class RecipeApi {
             '&instructionsRequired=${instructionsRequired ?? ""}'
             '&offset=${offset ?? 0}'
             '&number=${number ?? 10}'
-            '&vegetarian=${vegetarian ?? false}'
-            '&vegan=${vegan ?? false}'
             '&minAggregateLikes=${aggregateLikes ?? 0}'
             '&minHealthScore=${healthScore ?? 0}'
             '&minSpoonacularScore=${spoonacularScore ?? 0}'

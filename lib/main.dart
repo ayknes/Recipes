@@ -29,36 +29,18 @@ class RecipeSearchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: _authService.user,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          User? user = snapshot.data;
-          if (user == null) {
-            return MaterialApp(
-              title: 'Recipe Search',
-              theme: ThemeData(primarySwatch: Colors.red),
-              home: LoginPage(),
-            );
-          } else {
-            return MaterialApp(
-              title: 'Recipe Search',
-              theme: ThemeData(primarySwatch: Colors.red),
-              home: MainScreen(user: user), // pass the user to the MainScreen
-            );
-          }
-        } else {
-          return CircularProgressIndicator(); // show a loading spinner while waiting for the connection
-        }
-      },
+    return MaterialApp(
+      title: 'Recipe Search',
+      theme: ThemeData(primarySwatch: Colors.red),
+      home: MainScreen(authService: _authService),
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
-  final User user;
+  final AuthService authService;
 
-  MainScreen({required this.user});
+  MainScreen({required this.authService});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -66,27 +48,39 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  late List<Widget> _screens;
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedIndex =
-        2; // when the MainScreen is shown, it always shows the AccountPage first
-    _screens = [
-      SearchScreen(),
-      SavedScreen(),
-      AccountPage(user: widget.user),
-    ];
-  }
+  final List<Widget> _commonScreens = [
+    SearchScreen(),
+    SavedScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: CustomBottomNavigation(
-        onTap: _onItemSelected,
-      ),
+    return StreamBuilder<User?>(
+      stream: widget.authService.user,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          User? user = snapshot.data;
+          Widget userScreen;
+          if (user == null) {
+            userScreen = LoginPage();
+          } else {
+            userScreen = AccountPage(user: user);
+          }
+
+          List<Widget> _screens = [..._commonScreens, userScreen];
+
+          return Scaffold(
+            body: _screens[_selectedIndex],
+            bottomNavigationBar: CustomBottomNavigation(
+              onTap: _onItemSelected,
+            ),
+          );
+        } else {
+          // Show some loading screen or widget until the user state is known
+          return CircularProgressIndicator();
+        }
+      },
     );
   }
 

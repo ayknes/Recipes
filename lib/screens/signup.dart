@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:recipes/components/my_button.dart';
 import 'package:recipes/components/my_textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:recipes/screens/login.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({super.key});
@@ -118,11 +119,20 @@ class SignUpPage extends StatelessWidget {
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
-                    'Sign in',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () {
+                      // Use the navigator to navigate to the sign in page.
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    },
+                    child: const Text(
+                      'Sign in',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
